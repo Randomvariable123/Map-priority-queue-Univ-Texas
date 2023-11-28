@@ -1,0 +1,91 @@
+
+template <typename T, typename Comparator>
+class priorityqueue
+{
+private:
+	std::vector<T> heap;
+	Comparator comp;
+
+	void heapifyDown(int index)
+	{
+		int left = 2 * index + 1;
+		int right = 2 * index + 2;
+		int largest = index;
+
+		if (left < heap.size() && comp(heap[left], heap[index]))
+		{
+			largest = left;
+		}
+
+		if (right < heap.size() && comp(heap[right], heap[largest]))
+		{
+			largest = right;
+		}
+
+		if (largest != index)
+		{
+			std::swap(heap[index], heap[largest]);
+			heapifyDown(largest);
+		}
+	}
+
+	void heapifyUp(int index)
+	{
+		int parent = (index - 1) / 2;
+
+		if (index && comp(heap[index], heap[parent]))
+		{
+			std::swap(heap[index], heap[parent]);
+			heapifyUp(parent);
+		}
+	}
+
+public:
+	priorityqueue() = default;
+
+	explicit priorityqueue(const Comparator &comp) : comp(comp) {}
+
+	// Constructor with an initializer list
+	priorityqueue(std::initializer_list<T> list, const Comparator &comp = Comparator())
+		: heap(list), comp(comp)
+	{
+		// Build the heap using heapify
+		for (int i = heap.size() / 2 - 1; i >= 0; --i)
+		{
+			heapifyDown(i);
+		}
+	}
+
+	bool empty() const
+	{
+		return heap.empty();
+	}
+
+	void push(const T &value)
+	{
+		heap.push_back(value);
+		int index = heap.size() - 1;
+		heapifyUp(index);
+	}
+
+	void pop()
+	{
+		if (empty())
+		{
+			throw std::out_of_range("Heap is empty");
+		}
+
+		heap[0] = heap.back();
+		heap.pop_back();
+		heapifyDown(0);
+	}
+
+	T top() const
+	{
+		if (empty())
+		{
+			throw std::out_of_range("Heap is empty");
+		}
+		return heap[0];
+	}
+};
